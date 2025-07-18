@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+websockets # Or python-socketio if using that wrapper
+deepgram-sdk
+python-dotenv
+httpx # For making HTTP requests to Next.js API
