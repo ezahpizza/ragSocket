@@ -15,22 +15,22 @@ RUN adduser \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
-    appuser && \
-    chown -R appuser:appuser /app
+    appuser
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv venv
-
-ENV PATH="/app/.venv/bin:$PATH" 
-
+RUN uv venv /app/.venv
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
 COPY . .
 
+RUN chown -R appuser:appuser /app
+
 USER appuser
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
