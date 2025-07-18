@@ -1,9 +1,9 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS base
+FROM python:3.12-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
@@ -17,19 +17,15 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-COPY pyproject.toml uv.lock ./
+COPY requirements.txt ./
 
-RUN uv venv /app/.venv
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 RUN chown -R appuser:appuser /app
 
 USER appuser
-
-ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
